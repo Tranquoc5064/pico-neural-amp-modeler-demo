@@ -1,6 +1,6 @@
 #pragma once
 // Embedded NAM model interface. The definitions live in the build-generated
-// nam_model.c (see nam_set_model() in CMakeLists.txt + scripts/nam_to_c.py).
+// nam_model.c, emitted by tools/nam2c (see nam_set_model() in CMakeLists.txt).
 #ifdef __cplusplus
 extern "C" {
 #endif

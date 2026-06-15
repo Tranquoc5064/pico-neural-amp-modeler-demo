@@ -1,13 +1,11 @@
-// NAM A2-Lite benchmark on RP2350 — DUAL-CORE a2_fast layer pipeline.
+// NAM A2-Lite benchmark on RP2350 — dual-core a2_fast layer pipeline.
 //
-// core1 runs the FRONT half (layers [0,KSPLIT)); core0 runs the BACK half
-// (layers [KSPLIT,23) + head) and owns the output (the future USB-Audio side).
-// They pipeline at 48-frame block granularity via a double-buffered handoff +
-// SIO FIFO, so block t's back overlaps block t+1's front (+1 block latency,
-// ~2x throughput). Correctness: the dual-core output is bit-exact vs single core
-// (the printed checksum is model-dependent). nam_bench embeds the same model as
-// the USB app (CMake NAM_MODEL); a2_fast is data-independent, so the per-sample
-// cycle count is identical for any A2-Lite regardless of the weight values.
+// core1 runs the front half (layers [0,KSPLIT)); core0 runs the back half
+// (layers [KSPLIT,23) + head) and owns the output. They pipeline at 48-frame
+// block granularity via a double-buffered handoff + SIO FIFO, so block t's back
+// overlaps block t+1's front (+1 block latency, ~2x throughput), bit-exact vs a
+// single core. a2_fast is data-independent, so the per-sample cycle count holds
+// for any A2-Lite regardless of the weight values.
 #include <cstdio>
 #include <cstring>
 #include <memory>

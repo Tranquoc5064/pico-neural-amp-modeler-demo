@@ -65,7 +65,6 @@ char const *string_desc_arr[] = {
 
 static uint16_t _desc_str[32 + 1];
 
-//static const uint32_t supported_sample_rates[] = {44100, 48000};
 static const uint32_t supported_sample_rates[] = {48000};
 
 static uint32_t current_sample_rate = 48000;

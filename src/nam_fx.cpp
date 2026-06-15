@@ -2,9 +2,9 @@
 // core1 = FRONT half, caller's core0 = BACK half + output. +1 block latency.
 //
 // Cross-core handshake uses shared volatile flags (NOT the SIO FIFO) so the FIFO
-// stays free for multicore_lockout, which we use to safely park core1 while
-// core0 reads the BOOTSEL button (that read toggles the QSPI CS line and would
-// corrupt a concurrent flash fetch on core1 -> the earlier "freeze").
+// stays free for multicore_lockout, used to park core1 while core0 reads the
+// BOOTSEL button (that read toggles the QSPI CS line and would otherwise corrupt
+// a concurrent flash fetch on core1).
 #include <cstdint>
 #include <cstring>
 #include <vector>

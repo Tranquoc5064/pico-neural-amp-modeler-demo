@@ -26,9 +26,9 @@ extern "C" {
 #define CFG_TUD_AUDIO_ENABLE_INTERRUPT_EP                    1
 
 // Deliver exactly one host-frame's worth of samples per SOF ourselves (see
-// tud_audio_tx_done_isr in main.c). At an integer 48 samples/SOF this is
-// jitter-free; TinyUSB's flow control would instead nudge the packet size ±1
-// sample to track the IN FIFO level, which adds the fizzy mic noise.
+// tud_audio_tx_done_isr in main.c): an integer 48 samples/SOF, jitter-free.
+// TinyUSB's flow control would instead size each packet from the IN FIFO level,
+// nudging it ±1 sample.
 #define CFG_TUD_AUDIO_EP_IN_FLOW_CONTROL                     0
 #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                        TUD_AUDIO_INTERFACE_STEREO_DESC_LEN
 #define CFG_TUD_AUDIO_FUNC_1_N_FORMATS                       1

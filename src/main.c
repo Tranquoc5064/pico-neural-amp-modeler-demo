@@ -1,20 +1,12 @@
-// USB Audio 2.0 NAM amp-sim: enumerates as a class-compliant stereo 24-bit
-// 48 kHz audio device (host -> "speaker" in, processed -> "mic" out). The NAM
-// A2-Lite model runs on the dual-core a2_fast pipeline (core1 = front half, core0
-// = USB + back half). BOOTSEL toggles the effect: press -> active + LED on,
-// press again -> bypass (passthrough) + LED off.
+// USB Audio 2.0 NAM amp-sim: class-compliant stereo 24-bit 48 kHz device
+// (host -> "speaker" OUT, processed -> "mic" IN). The NAM A2-Lite model runs on
+// the dual-core a2_fast pipeline (core1 = front half, core0 = USB + back half).
+// BOOTSEL toggles the effect (active + LED on / bypass + LED off).
 //
-// USB plumbing (descriptors, control handlers) follows
-// github.com/oyama/pico-usb-audio-fx, ported to the TinyUSB 0.20.0 audio API.
-//
-// Delivery model (the important part): the IN (mic) endpoint is fed EXACTLY one
-// host-frame's worth of samples per USB SOF from tud_audio_tx_done_isr (0.20.0's
-// renamed tud_audio_tx_done_pre_load_cb). With CFG_TUD_AUDIO_EP_IN_FLOW_CONTROL
-// off, that is a jitter-free 48 samples/SOF at 48 kHz. (Letting flow control size
-// each packet from the FIFO level instead nudges it ±1 sample and produces a
-// fizzy "jirijiri" mic noise.) The main loop only does the heavy lifting —
-// drain the OUT FIFO, run NAM — and hands whole 48-frame blocks to a small SPSC
-// ring that the per-SOF ISR drains.
+// IN delivery: the mic endpoint is fed exactly one host-frame's worth of samples
+// per USB SOF (tud_audio_tx_done_isr, with CFG_TUD_AUDIO_EP_IN_FLOW_CONTROL off),
+// a jitter-free 48 samples/SOF at 48 kHz. The main loop drains the OUT FIFO, runs
+// NAM, and hands whole 48-frame blocks to an SPSC ring that the per-SOF ISR drains.
 #include <string.h>
 
 #include "bsp/board_api.h"
