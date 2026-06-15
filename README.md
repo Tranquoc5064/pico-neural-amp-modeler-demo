@@ -8,6 +8,8 @@ time. It needs no driver, no DSP chip, and no extra hardware: plug it in, select
 interface, and press the BOOTSEL button to A/B the modeled amp against clean passthrough. The
 model runs across both Cortex-M33 cores.
 
+https://github.com/user-attachments/assets/7691aff4-b685-411e-9f66-75b73250b5ac
+
 > This repository is a demonstration and technical write-up, not a product. It shows that a
 > production NAM A2 tone fits an RP2350, with the firmware, build tooling, and benchmarks to
 > reproduce it. Playing a real guitar through it needs an audio codec, which is a separate,
