@@ -8,8 +8,6 @@ time. It needs no driver, no DSP chip, and no extra hardware: plug it in, select
 interface, and press the BOOTSEL button to A/B the modeled amp against clean passthrough. The
 model runs across both Cortex-M33 cores.
 
-<!-- TODO: demo video / gif -->
-
 > This repository is a demonstration and technical write-up, not a product. It shows that a
 > production NAM A2 tone fits an RP2350, with the firmware, build tooling, and benchmarks to
 > reproduce it. Playing a real guitar through it needs an audio codec, which is a separate,
@@ -64,7 +62,7 @@ are in [RESULTS.md](RESULTS.md).
 ## Build & run
 
 ```bash
-git clone --recurse-submodules <this repo>
+git clone --recurse-submodules https://github.com/oyama/pico-neural-amp-modeler-demo.git
 cd pico-neural-amp-modeler-demo
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target pico_nam_loopback -j
@@ -80,26 +78,25 @@ full walkthrough (toolchain setup, per-OS monitoring, embedding your own
 
 The network runs on [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore).
 This project's engine changes are additive and minimal (`process()` is untouched) and live in a
-fork; the useful pieces are being offered upstream as PRs:
+[fork](https://github.com/oyama/NeuralAmpModelerCore/tree/add-rp2350-support); the useful pieces
+are being offered upstream as PRs:
 
 - a layer-partition API on the `a2_fast` path so the WaveNet stack can be split across cores
   (bit-exact against a single core);
 - a bare-metal portability flag (`NAM_SHARED_PTR_ATOMIC_FREE_FUNCS`) so the engine compiles
   without `std::atomic<std::shared_ptr<>>`.
 
-Everything else stays in this repo: the dual-core glue (`src/nam_fx.cpp`), the UAC2 layer (adapted
-from [oyama/pico-usb-audio-fx](https://github.com/oyama/pico-usb-audio-fx)), the `nam2c` model
-embedder (`tools/nam2c.cpp`), and a no-op `<mutex>` shadow for the single-thread toolchain
+Everything else stays in this repo: the dual-core glue (`src/nam_fx.cpp`), the UAC2 layer, the
+`nam2c` model embedder (`tools/nam2c.cpp`), and a no-op `<mutex>` shadow for the single-thread toolchain
 (`include/compat/`). Build-level adaptations (C++ exceptions, `--whole-archive` so the engine's
 parsers self-register) are in `CMakeLists.txt`.
 
 | dependency | license | role |
 |---|---|---|
-| [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) (forked) | MIT | NN engine / `a2_fast` |
+| [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) ([fork](https://github.com/oyama/NeuralAmpModelerCore)) | MIT | NN engine / `a2_fast` |
 | Eigen | MPL2 | linear algebra |
 | nlohmann/json | MIT | `.nam` parsing (host-side `nam2c`) |
 | Pico SDK / TinyUSB | BSD-3 | RP2350 + USB |
-| [pico-usb-audio-fx](https://github.com/oyama/pico-usb-audio-fx) | BSD-3 | UAC2 layer |
 
 ## Scope & where it goes
 
@@ -119,5 +116,4 @@ replace the rebuild-and-reflash step.
 - This repo: MIT, see [LICENSE](LICENSE).
 - NAM and the A2 architecture: [Steve Atkinson](https://github.com/sdatkinson) /
   [TONE3000](https://www.tone3000.com/).
-- USB-audio layer adapted from [oyama/pico-usb-audio-fx](https://github.com/oyama/pico-usb-audio-fx).
 - Bring your own A2 capture from [tone3000.com](https://www.tone3000.com/).
