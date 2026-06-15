@@ -1,0 +1,65 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "usb_descriptors.h"
+
+#define BOARD_TUD_RHPORT      0
+#define BOARD_TUD_MAX_SPEED   OPT_MODE_DEFAULT_SPEED
+#define CFG_TUSB_DEBUG        0
+#define CFG_TUD_ENABLED       1
+#define CFG_TUD_MAX_SPEED     BOARD_TUD_MAX_SPEED
+
+#ifndef CFG_TUD_ENDPOINT0_SIZE
+#define CFG_TUD_ENDPOINT0_SIZE  64
+#endif
+
+#define CFG_TUD_CDC    0
+#define CFG_TUD_MSC    0
+#define CFG_TUD_HID    0
+#define CFG_TUD_MIDI   0
+#define CFG_TUD_AUDIO  1
+#define CFG_TUD_VENDOR 0
+
+#define CFG_TUD_AUDIO_ENABLE_INTERRUPT_EP                    1
+
+// Deliver exactly one host-frame's worth of samples per SOF ourselves (see
+// tud_audio_tx_done_isr in main.c). At an integer 48 samples/SOF this is
+// jitter-free; TinyUSB's flow control would instead nudge the packet size ±1
+// sample to track the IN FIFO level, which adds the fizzy mic noise.
+#define CFG_TUD_AUDIO_EP_IN_FLOW_CONTROL                     0
+#define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                        TUD_AUDIO_INTERFACE_STEREO_DESC_LEN
+#define CFG_TUD_AUDIO_FUNC_1_N_FORMATS                       1
+
+#define CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE                 48000
+#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                   2
+#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX                   2
+// 24bit in 32bit slots
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_N_BYTES_PER_SAMPLE_TX  4
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_RESOLUTION_TX          32
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_N_BYTES_PER_SAMPLE_RX  4
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_RESOLUTION_RX          32
+
+#define CFG_TUD_AUDIO_ENABLE_EP_IN                1
+
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN    TUD_AUDIO_EP_SIZE(TUD_OPT_HIGH_SPEED, CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_FORMAT_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
+
+#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ      (CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN*4+64)
+#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX         (CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_IN)
+
+#define CFG_TUD_AUDIO_ENABLE_EP_OUT               1
+
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_OUT   TUD_AUDIO_EP_SIZE(TUD_OPT_HIGH_SPEED, CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_FORMAT_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
+
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ     (CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_OUT*4+64)
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX        (CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_OUT)
+
+#define CFG_TUD_AUDIO_FUNC_1_N_AS_INT             2
+
+#define CFG_TUD_AUDIO_FUNC_1_CTRL_BUF_SZ          64
+
+#ifdef __cplusplus
+}
+#endif

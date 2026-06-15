@@ -1,0 +1,11 @@
+/build/
+*.uf2
+*.elf.map
+.DS_Store
+
+# python
+__pycache__/
+*.pyc
+
+# host build artifacts
+/third_party/*/build*/
