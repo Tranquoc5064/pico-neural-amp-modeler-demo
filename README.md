@@ -63,10 +63,13 @@ are in [RESULTS.md](RESULTS.md).
 
 ## Build & run
 
+This project uses the [pico-sdk](https://github.com/raspberrypi/pico-sdk).
+Refer to the official guide, [Getting Started with Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf), to set up your development environment.
+
 ```bash
 git clone --recurse-submodules https://github.com/oyama/pico-neural-amp-modeler-demo.git
 cd pico-neural-amp-modeler-demo
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+PICO_SDK_PATH=/path/to/pico-sdk cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target pico_nam_loopback -j
 # drag build/pico_nam_loopback.uf2 onto the RP2350 in BOOTSEL mode
 ```
